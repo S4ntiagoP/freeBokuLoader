@@ -1,0 +1,28 @@
+
+beacon_command_register(
+"freeBokuLoader",
+"Free/Remove the memory region where the User Defined Reflective Loader is.",
+"Usage: freeBokuLoader");
+
+alias freeBokuLoader {
+    local('$handle $data $barch $username $args');
+    $barch  = barch($1);
+
+    # pack the arguments
+    $args = bof_pack($1, "");
+
+    # read in the BOF file
+    $handle = openf(script_resource("dist/freeBokuLoader $+ . $+ $barch $+ .o"));
+    $data = readb($handle, -1);
+    closef($handle);
+
+    if(strlen($data) == 0)
+    {
+        berror($1, "could not read bof file");
+        return;
+    }
+
+    # run
+    btask($1, "freeBokuLoader BOF");
+    beacon_inline_execute($1, $data, "go", $args);
+}
